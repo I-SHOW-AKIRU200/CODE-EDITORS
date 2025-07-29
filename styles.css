@@ -1,0 +1,262 @@
+:root {
+    --bg-primary: #1e1e1e;
+    --bg-secondary: #252526;
+    --bg-tertiary: #2d2d2d;
+    --text-primary: #e0e0e0;
+    --text-secondary: #aaaaaa;
+    --accent-color: #569cd6;
+    --accent-hover: #4d8bc0;
+    --border-color: #444;
+    --success-color: #4caf50;
+    --warning-color: #ff9800;
+    --error-color: #f44336;
+    --html-color: #e34c26;
+    --css-color: #2965f1;
+    --js-color: #f0db4f;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+header {
+    background-color: var(--bg-secondary);
+    padding: 12px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.logo i {
+    color: var(--accent-color);
+    font-size: 24px;
+}
+
+.logo h1 {
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.controls {
+    display: flex;
+    gap: 15px;
+}
+
+button {
+    background-color: var(--accent-color);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+button:hover {
+    background-color: var(--accent-hover);
+}
+
+button.secondary {
+    background-color: var(--bg-tertiary);
+    color: var(--text-primary);
+}
+
+button.secondary:hover {
+    background-color: #333;
+}
+
+.main-container {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+}
+
+.editor-container {
+    display: flex;
+    flex-direction: column;
+    width: 60%;
+    border-right: 1px solid var(--border-color);
+}
+
+.editor-tabs {
+    display: flex;
+    background-color: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.editor-tab {
+    padding: 10px 20px;
+    cursor: pointer;
+    position: relative;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.editor-tab.active {
+    background-color: var(--bg-primary);
+}
+
+.editor-tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background-color: var(--accent-color);
+}
+
+.editor-tab.html.active {
+    color: var(--html-color);
+}
+
+.editor-tab.css.active {
+    color: var(--css-color);
+}
+
+.editor-tab.js.active {
+    color: var(--js-color);
+}
+
+.editor-tab i {
+    font-size: 14px;
+}
+
+.editor-content {
+    flex: 1;
+    display: none;
+    position: relative;
+    overflow: hidden;
+}
+
+.editor-content.active {
+    display: block;
+}
+
+/* Syntax highlighting containers */
+.editor-content pre[class*="language-"] {
+    margin: 0;
+    height: 100%;
+    overflow: auto;
+    background-color: var(--bg-primary);
+    border-radius: 0;
+}
+
+.editor-content code[class*="language-"] {
+    font-family: 'Fira Code', monospace;
+    font-size: 14px;
+    line-height: 1.5;
+    padding: 15px;
+    display: block;
+    height: 100%;
+    outline: none;
+    tab-size: 2;
+    color: var(--text-primary);
+}
+
+/* Make the code editable */
+.editor-content code[contenteditable="true"] {
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.preview-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.preview-container.fullscreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1000;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.preview-header {
+    padding: 10px 20px;
+    background-color: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.preview-header i {
+    color: var(--success-color);
+}
+
+.preview-content {
+    flex: 1;
+    background-color: white;
+    overflow: auto;
+}
+
+.preview-iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+.status-bar {
+    background-color: var(--bg-secondary);
+    padding: 6px 15px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    display: flex;
+    justify-content: space-between;
+    border-top: 1px solid var(--border-color);
+}
+
+.status-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+@media (max-width: 768px) {
+    .main-container {
+        flex-direction: column;
+    }
+
+    .editor-container {
+        width: 100%;
+        height: 60%;
+    }
+
+    .preview-container {
+        width: 100%;
+        height: 40%;
+    }
+}
