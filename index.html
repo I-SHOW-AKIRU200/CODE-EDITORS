@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodePlayground - Web Editor</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        /* CSS will be moved to separate file in final version */
+        :root {
+            --bg-primary: #1e1e1e;
+            --bg-secondary: #252526;
+            --bg-tertiary: #2d2d2d;
+            --text-primary: #e0e0e0;
+            --text-secondary: #aaaaaa;
+            --accent-color: #569cd6;
+            --accent-hover: #4d8bc0;
+            --border-color: #444;
+            --success-color: #4caf50;
+            --warning-color: #ff9800;
+            --error-color: #f44336;
+            --html-color: #e34c26;
+            --css-color: #2965f1;
+            --js-color: #f0db4f;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        header {
+            background-color: var(--bg-secondary);
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo i {
+            color: var(--accent-color);
+            font-size: 24px;
+        }
+
+        .logo h1 {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+        }
+
+        button {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        button:hover {
+            background-color: var(--accent-hover);
+        }
+
+        button.secondary {
+            background-color: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        button.secondary:hover {
+            background-color: #333;
+        }
+
+        .main-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .editor-container {
+            display: flex;
+            flex-direction: column;
+            width: 60%;
+            border-right: 1px solid var(--border-color);
+        }
+
+        .editor-tabs {
+            display: flex;
+            background-color: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .editor-tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            position: relative;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .editor-tab.active {
+            background-color: var(--bg-primary);
+        }
+
+        .editor-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background-color: var(--accent-color);
+        }
+
+        .editor-tab.html.active {
+            color: var(--html-color);
+        }
+
+        .editor-tab.css.active {
+            color: var(--css-color);
+        }
+
+        .editor-tab.js.active {
+            color: var(--js-color);
+        }
+
+        .editor-tab i {
+            font-size: 14px;
+        }
+
+        .editor-content {
+            flex: 1;
+            display: none;
+            position: relative;
+        }
+
+        .editor-content.active {
+            display: block;
+        }
+
+        .editor {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: 'Fira Code', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            padding: 15px;
+            resize: none;
+            outline: none;
+            tab-size: 2;
+        }
+
+        .preview-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .preview-header {
+            padding: 10px 20px;
+            background-color: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .preview-header i {
+            color: var(--success-color);
+        }
+
+        .preview-content {
+            flex: 1;
+            background-color: white;
+            overflow: auto;
+        }
+
+        .preview-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .status-bar {
+            background-color: var(--bg-secondary);
+            padding: 6px 15px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            display: flex;
+            justify-content: space-between;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                flex-direction: column;
+            }
+
+            .editor-container {
+                width: 100%;
+                height: 60%;
+            }
+
+            .preview-container {
+                width: 100%;
+                height: 40%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <i class="fas fa-code"></i>
+            <h1>CodePlayground</h1>
+        </div>
+        <div class="controls">
+            <button id="run-btn">
+                <i class="fas fa-play"></i>
+                Run
+            </button>
+            <button class="secondary" id="save-btn">
+                <i class="fas fa-save"></i>
+                Save
+            </button>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <div class="editor-container">
+            <div class="editor-tabs">
+                <div class="editor-tab html active" data-target="html-editor">
+                    <i class="fab fa-html5"></i>
+                    HTML
+                </div>
+                <div class="editor-tab css" data-target="css-editor">
+                    <i class="fab fa-css3-alt"></i>
+                    CSS
+                </div>
+                <div class="editor-tab js" data-target="js-editor">
+                    <i class="fab fa-js"></i>
+                    JavaScript
+                </div>
+            </div>
+
+            <div class="editor-content active" id="html-editor">
+                <textarea class="editor" id="html-code" placeholder="Write your HTML here..."><!DOCTYPE html>
+<html>
+<head>
+    <title>My Page</title>
+</head>
+<body>
+    <h1>Welcome to CodePlayground!</h1>
+    <p>Edit the HTML, CSS, and JavaScript to see live changes.</p>
+    <button id="demo-btn">Click Me</button>
+    <div id="output"></div>
+</body>
+</html></textarea>
+            </div>
+
+            <div class="editor-content" id="css-editor">
+                <textarea class="editor" id="css-code" placeholder="Write your CSS here...">body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    padding: 20px;
+    background-color: #f5f5f5;
+}
+
+h1 {
+    color: #569cd6;
+}
+
+#demo-btn {
+    padding: 10px 20px;
+    background-color: #569cd6;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+}
+
+#demo-btn:hover {
+    background-color: #4d8bc0;
+}
+
+#output {
+    margin-top: 20px;
+    font-size: 18px;
+    color: #333;
+}</textarea>
+            </div>
+
+            <div class="editor-content" id="js-editor">
+                <textarea class="editor" id="js-code" placeholder="Write your JavaScript here...">document.getElementById('demo-btn').addEventListener('click', function() {
+    const output = document.getElementById('output');
+    const colors = ['#569cd6', '#4caf50', '#ff9800', '#f44336', '#9c27b0'];
+    const randomColor = colors[Math.floor(Math.random() * colors.length)];
+    
+    output.textContent = 'Button clicked! Current time: ' + new Date().toLocaleTimeString();
+    output.style.color = randomColor;
+    
+    // Add a temporary animation
+    output.style.transform = 'scale(1.1)';
+    setTimeout(() => {
+        output.style.transform = 'scale(1)';
+    }, 300);
+});</textarea>
+            </div>
+        </div>
+
+        <div class="preview-container">
+            <div class="preview-header">
+                <i class="fas fa-eye"></i>
+                <span>Preview</span>
+            </div>
+            <div class="preview-content">
+                <iframe class="preview-iframe" id="preview-frame"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <div class="status-bar">
+        <div class="status-item">
+            <i class="fas fa-circle" style="color: var(--success-color); font-size: 8px;"></i>
+            <span>Ready</span>
+        </div>
+        <div class="status-item">
+            <i class="fas fa-code"></i>
+            <span>HTML/CSS/JS Editor</span>
+        </div>
+    </div>
+
+    <script>
+        // Wait for DOM to be fully loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get DOM elements
+            const htmlEditor = document.getElementById('html-code');
+            const cssEditor = document.getElementById('css-code');
+            const jsEditor = document.getElementById('js-code');
+            const previewFrame = document.getElementById('preview-frame');
+            const runBtn = document.getElementById('run-btn');
+            const saveBtn = document.getElementById('save-btn');
+            const editorTabs = document.querySelectorAll('.editor-tab');
+            const editorContents = document.querySelectorAll('.editor-content');
+
+            // Set initial editor values from the textarea defaults
+            let currentCode = {
+                html: htmlEditor.value,
+                css: cssEditor.value,
+                js: jsEditor.value
+            };
+
+            // Tab switching functionality
+            editorTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const targetId = tab.getAttribute('data-target');
+                    
+                    // Update active tab
+                    editorTabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    
+                    // Update active content
+                    editorContents.forEach(c => c.classList.remove('active'));
+                    document.getElementById(targetId).classList.add('active');
+                });
+            });
+
+            // Run code function
+            function runCode() {
+                // Update current code
+                currentCode = {
+                    html: htmlEditor.value,
+                    css: cssEditor.value,
+                    js: jsEditor.value
+                };
+
+                // Create a complete HTML document
+                const fullCode = `
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <style>${currentCode.css}</style>
+                    </head>
+                    <body>
+                        ${currentCode.html}
+                        <script>${currentCode.js}<\/script>
+                    </body>
+                    </html>
+                `;
+
+                // Write to iframe
+                const frameDoc = previewFrame.contentDocument || previewFrame.contentWindow.document;
+                frameDoc.open();
+                frameDoc.write(fullCode);
+                frameDoc.close();
+            }
+
+            // Run button click handler
+            runBtn.addEventListener('click', runCode);
+
+            // Save button click handler
+            saveBtn.addEventListener('click', function() {
+                // In a real app, this would save to a database or local storage
+                // For this demo, we'll just show an alert
+                alert('Code saved (this would save to storage in a real app)');
+                
+                // You could implement actual saving like this:
+                // localStorage.setItem('savedCode', JSON.stringify(currentCode));
+            });
+
+            // Auto-run on first load
+            runCode();
+
+            // Optional: Add auto-run on code change with debounce
+            let debounceTimer;
+            [htmlEditor, cssEditor, jsEditor].forEach(editor => {
+                editor.addEventListener('input', () => {
+                    clearTimeout(debounceTimer);
+                    debounceTimer = setTimeout(runCode, 1000);
+                });
+            });
+
+            // Optional: Add keyboard shortcut for running code (Ctrl+Enter)
+            document.addEventListener('keydown', function(e) {
+                if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                    runCode();
+                }
+            });
+
+            // Optional: Load saved code if available
+            window.addEventListener('load', function() {
+                // const savedCode = localStorage.getItem('savedCode');
+                // if (savedCode) {
+                //     const code = JSON.parse(savedCode);
+                //     htmlEditor.value = code.html;
+                //     cssEditor.value = code.css;
+                //     jsEditor.value = code.js;
+                //     currentCode = code;
+                //     runCode();
+                // }
+            });
+        });
+    </script>
+</body>
+</html>
