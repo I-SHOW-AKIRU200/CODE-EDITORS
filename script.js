@@ -47,6 +47,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <!DOCTYPE html>
             <html>
             <head>
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <style>${currentCode.css}</style>
             </head>
             <body>
@@ -69,9 +70,9 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Update button icon and text
         const isFullscreen = previewContainer.classList.contains('fullscreen');
-        previewBtn.innerHTML = isFullscreen 
-            ? '<i class="fas fa-compress"></i> Normal' 
-            : '<i class="fas fa-expand"></i> Fullscreen';
+        const icon = isFullscreen ? 'compress' : 'expand';
+        previewBtn.innerHTML = `<i class="fas fa-${icon}"></i>` + 
+            (window.innerWidth > 767 ? `<span class="btn-text">${isFullscreen ? 'Normal' : 'Fullscreen'}</span>` : '');
     }
 
     // Event listeners
@@ -105,19 +106,39 @@ document.addEventListener('DOMContentLoaded', function() {
         editor.addEventListener('keydown', function(e) {
             if (e.key === 'Tab') {
                 e.preventDefault();
-                const start = this.selectionStart;
-                const end = this.selectionEnd;
-                
-                // Insert tab character
-                this.textContent = this.textContent.substring(0, start) + 
-                                  '\t' + 
-                                  this.textContent.substring(end);
-                
-                // Move cursor position
-                this.selectionStart = this.selectionEnd = start + 1;
+                const selection = window.getSelection();
+                const range = selection.getRangeAt(0);
+                const tabNode = document.createTextNode('\t');
+                range.insertNode(tabNode);
+                range.setStartAfter(tabNode);
+                range.setEndAfter(tabNode);
+                selection.removeAllRanges();
+                selection.addRange(range);
                 
                 // Trigger Prism to update highlighting
                 Prism.highlightElement(this);
+            }
+        });
+    });
+
+    // Handle window resize
+    window.addEventListener('resize', function() {
+        // Update button text visibility
+        const buttons = document.querySelectorAll('button');
+        buttons.forEach(btn => {
+            const icon = btn.querySelector('i').className;
+            const text = btn.querySelector('.btn-text');
+            if (text) {
+                text.style.display = window.innerWidth > 767 ? 'inline' : 'none';
+            }
+        });
+        
+        // Update tab text visibility
+        const tabs = document.querySelectorAll('.editor-tab');
+        tabs.forEach(tab => {
+            const text = tab.querySelector('.tab-text');
+            if (text) {
+                text.style.display = window.innerWidth > 767 ? 'inline' : 'none';
             }
         });
     });
