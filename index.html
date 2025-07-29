@@ -2,32 +2,156 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CodePlayground - Web Editor</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CodePlayground</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-    <!-- Prism.js for syntax highlighting -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism-tomorrow.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="styles.css">
+    <style>
+        :root {
+            --bg-primary: #1e1e1e;
+            --bg-secondary: #252526;
+            --bg-tertiary: #2d2d2d;
+            --text-primary: #e0e0e0;
+            --accent-color: #569cd6;
+            --border-color: #444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        header {
+            background-color: var(--bg-secondary);
+            padding: 8px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        button {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            white-space: nowrap;
+        }
+
+        .main-container {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .editor-tabs {
+            display: flex;
+            background-color: var(--bg-secondary);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .editor-tab {
+            padding: 8px 12px;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        .editor-content {
+            flex: 1;
+            overflow: auto;
+        }
+
+        textarea {
+            width: 100%;
+            height: 100%;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            border: none;
+            padding: 10px;
+            resize: none;
+            font-family: monospace;
+        }
+
+        .preview-container {
+            flex: 1;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .preview-header {
+            padding: 6px;
+            background-color: var(--bg-secondary);
+            font-size: 12px;
+        }
+
+        iframe {
+            flex: 1;
+            border: none;
+            background: white;
+        }
+
+        @media (min-width: 768px) {
+            .main-container {
+                flex-direction: row;
+            }
+            .editor-container {
+                width: 50%;
+            }
+            .preview-container {
+                border-top: none;
+                border-left: 1px solid var(--border-color);
+            }
+        }
+    </style>
 </head>
 <body>
     <header>
         <div class="logo">
             <i class="fas fa-code"></i>
-            <h1>CodePlayground</h1>
+            <span>CodePlayground</span>
         </div>
         <div class="controls">
-            <button id="run-btn" title="Run Code (Ctrl+Enter)">
+            <button id="run-btn">
                 <i class="fas fa-play"></i>
-                <span class="btn-text">Run</span>
+                <span>Run</span>
             </button>
-            <button id="preview-btn" title="Toggle Fullscreen">
+            <button id="preview-btn">
                 <i class="fas fa-expand"></i>
-                <span class="btn-text">Fullscreen</span>
-            </button>
-            <button class="secondary" id="save-btn" title="Save Code">
-                <i class="fas fa-save"></i>
-                <span class="btn-text">Save</span>
+                <span>Fullscreen</span>
             </button>
         </div>
     </header>
@@ -35,61 +159,51 @@
     <div class="main-container">
         <div class="editor-container">
             <div class="editor-tabs">
-                <div class="editor-tab html active" data-target="html-editor">
-                    <i class="fab fa-html5"></i>
-                    <span class="tab-text">HTML</span>
-                </div>
-                <div class="editor-tab css" data-target="css-editor">
-                    <i class="fab fa-css3-alt"></i>
-                    <span class="tab-text">CSS</span>
-                </div>
-                <div class="editor-tab js" data-target="js-editor">
-                    <i class="fab fa-js"></i>
-                    <span class="tab-text">JS</span>
-                </div>
+                <div class="editor-tab">HTML</div>
+                <div class="editor-tab">CSS</div>
+                <div class="editor-tab">JS</div>
             </div>
-
-            <div class="editor-content active" id="html-editor">
-                <pre><code class="language-html" id="html-code" contenteditable="true"><!-- Write your HTML here --></code></pre>
-            </div>
-
-            <div class="editor-content" id="css-editor">
-                <pre><code class="language-css" id="css-code" contenteditable="true">/* Write your CSS here */</code></pre>
-            </div>
-
-            <div class="editor-content" id="js-editor">
-                <pre><code class="language-javascript" id="js-code" contenteditable="true">// Write your JavaScript here</code></pre>
+            <div class="editor-content">
+                <textarea id="html-code" placeholder="HTML code here"></textarea>
             </div>
         </div>
 
-        <div class="preview-container" id="preview-container">
+        <div class="preview-container">
             <div class="preview-header">
-                <i class="fas fa-eye"></i>
-                <span>Preview</span>
+                Preview
             </div>
-            <div class="preview-content">
-                <iframe class="preview-iframe" id="preview-frame"></iframe>
-            </div>
+            <iframe id="preview-frame"></iframe>
         </div>
     </div>
 
-    <div class="status-bar">
-        <div class="status-item">
-            <i class="fas fa-circle" style="color: var(--success-color); font-size: 8px;"></i>
-            <span>Ready</span>
-        </div>
-        <div class="status-item">
-            <i class="fas fa-code"></i>
-            <span>HTML/CSS/JS Editor</span>
-        </div>
-    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const htmlEditor = document.getElementById('html-code');
+            const previewFrame = document.getElementById('preview-frame');
+            const runBtn = document.getElementById('run-btn');
+            const previewBtn = document.getElementById('preview-btn');
 
-    <!-- Prism.js for syntax highlighting -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-javascript.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-css.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-markup.min.js"></script>
-    
-    <script src="script.js"></script>
+            function runCode() {
+                const html = htmlEditor.value;
+                previewFrame.srcdoc = html;
+            }
+
+            function toggleFullscreen() {
+                if (!document.fullscreenElement) {
+                    previewFrame.requestFullscreen().catch(err => {
+                        alert(`Error attempting to enable fullscreen: ${err.message}`);
+                    });
+                } else {
+                    document.exitFullscreen();
+                }
+            }
+
+            runBtn.addEventListener('click', runCode);
+            previewBtn.addEventListener('click', toggleFullscreen);
+
+            // Initial run
+            runCode();
+        });
+    </script>
 </body>
 </html>
